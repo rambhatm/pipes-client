@@ -1,10 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
-
-	"github.com/anacrolix/tagflag"
 
 	"github.com/anacrolix/torrent/bencode"
 	"github.com/anacrolix/torrent/metainfo"
@@ -19,17 +18,8 @@ var (
 )
 
 //Creates a magnet link for the file
-func CreateMagnet(path string) {
-	log.SetFlags(log.Flags() | log.Lshortfile)
-	var args struct {
-		AnnounceList      []string `name:"a" help:"extra announce-list tier entry"`
-		EmptyAnnounceList bool     `name:"n" help:"exclude default announce-list entries"`
-		Comment           string   `name:"t" help:"comment"`
-		CreatedBy         string   `name:"c" help:"created by"`
-		tagflag.StartPos
-		Root string
-	}
-	tagflag.Parse(&args, tagflag.Description("Creates a torrent metainfo for the file system rooted at ROOT, and outputs it to stdout."))
+func CreateMagnet(path string) (magnet string) {
+
 	mi := metainfo.MetaInfo{
 		AnnounceList: make([][]string, 0),
 	}
@@ -44,12 +34,18 @@ func CreateMagnet(path string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	mi.InfoBytes, err = bencode.Marshal(info)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = mi.Write(os.Stdout)
+	info, err = mi.UnmarshalInfo()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintf(os.Stderr, "error unmarshalling info: %s", err)
+		os.Exit(1)
 	}
+
+	magnet = mi.Magnet(info.Name, mi.HashInfoBytes()).String()
+
+	return
 }

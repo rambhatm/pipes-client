@@ -23,5 +23,5 @@ func fileInfo(path string) (err error) {
 }
 
 func main() {
-	fileInfo("./client.go")
+	log.Println(CreateMagnet("./client.go"))
 }
