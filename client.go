@@ -2,26 +2,22 @@ package main
 
 import (
 	"log"
-	"os"
+
+	"github.com/anacrolix/torrent"
 )
 
-type pipeMetadata struct {
-	path string
-}
-
-func fileInfo(path string) (err error) {
-	file, err := os.Open(path)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	defer file.Close()
-	statData, err := file.Stat()
-	log.Printf("%#v", statData)
-
-	return
-}
+const (
+	shareDir = "./share"
+)
 
 func main() {
-	log.Println(CreateMagnet("./client.go"))
+	btClientConfig := torrent.NewDefaultClientConfig()
+	btClientConfig.DataDir = shareDir
+
+	btClient, err := torrent.NewClient(btClientConfig)
+	if err != nil {
+		log.Fatal("BT client create error", err)
+	}
+
+	defer btClient.Close()
 }
