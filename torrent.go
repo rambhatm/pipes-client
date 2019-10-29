@@ -21,7 +21,7 @@ var (
 func CreateMagnet(path string) (magnet string) {
 
 	mi := metainfo.MetaInfo{
-		AnnounceList: make([][]string, 0),
+		AnnounceList: builtinAnnounceList,
 	}
 	mi.SetDefaults()
 	mi.Comment = ""
